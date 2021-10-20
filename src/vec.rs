@@ -6,9 +6,6 @@ pub struct Vec3<T>(pub T, pub T, pub T);
 impl<T: Copy + Add<Output = T> + Mul<Output = T>> Vec3<T> {}
 
 impl Vec3<f64> {
-    pub fn to_u32(self) -> Vec3<u32> {
-        Vec3(self.0 as u32, self.1 as u32, self.2 as u32)
-    }
     pub fn dot(self, rhs: Vec3<f64>) -> f64 {
         self.0 * rhs.0 + self.1 * rhs.1 + self.2 * rhs.2
     }
@@ -29,14 +26,12 @@ impl Vec3<f64> {
         self / self.length()
     }
     pub fn write_color(self) {
-        let v = (self * 255.999).to_u32();
-        println!("{} {} {}", v.0, v.1, v.2);
-    }
-}
-
-impl Vec3<u32> {
-    pub fn to_f64(self) -> Vec3<f64> {
-        Vec3(self.0 as f64, self.1 as f64, self.2 as f64)
+        println!(
+            "{} {} {}",
+            (255.999 * self.0).clamp(0., 255.).floor(),
+            (255.999 * self.1).clamp(0., 255.).floor(),
+            (255.999 * self.2).clamp(0., 255.).floor()
+        );
     }
 }
 

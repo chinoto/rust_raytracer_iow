@@ -1,8 +1,12 @@
+pub mod camera;
 pub mod hit;
 pub mod ray;
 pub mod sphere;
 pub mod vec;
+
+use crate::camera::Camera;
 use hit::Hittable;
+use rand::random;
 use ray::Ray;
 use sphere::Sphere;
 use std::f64::INFINITY;
@@ -22,6 +26,7 @@ fn main() {
     const ASPECT_RATIO: f64 = 16. / 9.;
     const IMAGE_WIDTH: u32 = 400;
     const IMAGE_HEIGHT: u32 = ((IMAGE_WIDTH as f64) / ASPECT_RATIO) as u32;
+    const SAMPLES_PER_PIXEL: usize = 100;
 
     // World
     let world: Vec<Box<dyn Hittable>> = vec![
@@ -30,27 +35,20 @@ fn main() {
     ];
 
     // Camera
-    let viewport_height = 2.;
-    let viewport_width = viewport_height as f64 * ASPECT_RATIO;
-    let focal_length = 1.;
-
-    let origin = Vec3(0., 0., 0.);
-    let horizontal = Vec3(viewport_width, 0., 0.);
-    let vertical = Vec3(0., viewport_height, 0.);
-    let lower_left_corner = origin - (horizontal + vertical) / 2. - Vec3(0., 0., focal_length);
+    let cam = Camera::new(2., ASPECT_RATIO, 1.);
 
     // Render
     println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
     for j in (0..IMAGE_HEIGHT).rev() {
         eprint!("\rScanlines remaining: {}", j);
         for i in 0..IMAGE_WIDTH {
-            let u = i as f64 / ((IMAGE_WIDTH - 1) as f64);
-            let v = j as f64 / ((IMAGE_HEIGHT - 1) as f64);
-            let r = Ray::new(
-                origin,
-                lower_left_corner + horizontal * u + vertical * v - origin,
-            );
-            ray_color(r, &world).write_color();
+            ((0..SAMPLES_PER_PIXEL).fold(Vec3(0., 0., 0.), |acc, _| {
+                let u = (i as f64 + random::<f64>()) / ((IMAGE_WIDTH - 1) as f64);
+                let v = (j as f64 + random::<f64>()) / ((IMAGE_HEIGHT - 1) as f64);
+                let r = cam.get_ray(u, v);
+                ray_color(r, &world) + acc
+            }) / (SAMPLES_PER_PIXEL as f64))
+                .write_color();
         }
     }
 }
