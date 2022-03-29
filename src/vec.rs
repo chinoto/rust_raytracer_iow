@@ -1,3 +1,4 @@
+use rand::random;
 use std::ops::*;
 
 #[derive(Clone, Copy, Debug)]
@@ -25,12 +26,27 @@ impl Vec3<f64> {
     pub fn unit(self) -> Vec3<f64> {
         self / self.length()
     }
+    pub fn random(range: Range<f64>) -> Vec3<f64> {
+        Vec3(random::<f64>(), random::<f64>(), random::<f64>()) * (range.end - range.start)
+            + Vec3(1., 1., 1.) * range.start
+    }
+    pub fn random_in_unit_sphere() -> Vec3<f64> {
+        loop {
+            let vec = Vec3::random(-1. ..1.);
+            if vec.length_squared() < 1. {
+                return vec;
+            }
+        }
+    }
+    pub fn random_unit_vector() -> Vec3<f64> {
+        Vec3::random_in_unit_sphere().unit()
+    }
     pub fn write_color(self) {
         println!(
             "{} {} {}",
-            (255.999 * self.0).clamp(0., 255.).floor(),
-            (255.999 * self.1).clamp(0., 255.).floor(),
-            (255.999 * self.2).clamp(0., 255.).floor()
+            (255.999 * self.0.sqrt()).clamp(0., 255.).floor(),
+            (255.999 * self.1.sqrt()).clamp(0., 255.).floor(),
+            (255.999 * self.2.sqrt()).clamp(0., 255.).floor()
         );
     }
 }
