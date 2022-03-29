@@ -8,6 +8,7 @@ use crate::camera::Camera;
 use hit::Hittable;
 use rand::random;
 use ray::Ray;
+use rayon::prelude::*;
 use sphere::Sphere;
 use std::f64::INFINITY;
 use vec::Vec3;
@@ -24,7 +25,7 @@ fn ray_color(r: Ray, world: &[Box<dyn Hittable>]) -> Vec3<f64> {
 fn main() {
     // Image
     const ASPECT_RATIO: f64 = 16. / 9.;
-    const IMAGE_WIDTH: u32 = 400;
+    const IMAGE_WIDTH: u32 = 1600;
     const IMAGE_HEIGHT: u32 = ((IMAGE_WIDTH as f64) / ASPECT_RATIO) as u32;
     const SAMPLES_PER_PIXEL: usize = 100;
 
@@ -39,16 +40,20 @@ fn main() {
 
     // Render
     println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
+    let mut scratch = Vec::new();
     for j in (0..IMAGE_HEIGHT).rev() {
-        eprint!("\rScanlines remaining: {}", j);
-        for i in 0..IMAGE_WIDTH {
-            ((0..SAMPLES_PER_PIXEL).fold(Vec3(0., 0., 0.), |acc, _| {
-                let u = (i as f64 + random::<f64>()) / ((IMAGE_WIDTH - 1) as f64);
-                let v = (j as f64 + random::<f64>()) / ((IMAGE_HEIGHT - 1) as f64);
-                let r = cam.get_ray(u, v);
-                ray_color(r, &world) + acc
-            }) / (SAMPLES_PER_PIXEL as f64))
-                .write_color();
-        }
+        // eprint!("\rScanlines remaining: {}", j);
+        (0..IMAGE_WIDTH)
+            .into_par_iter()
+            .map(|i| {
+                (0..SAMPLES_PER_PIXEL).fold(Vec3(0., 0., 0.), |acc, _| {
+                    let u = (i as f64 + random::<f64>()) / ((IMAGE_WIDTH - 1) as f64);
+                    let v = (j as f64 + random::<f64>()) / ((IMAGE_HEIGHT - 1) as f64);
+                    let r = cam.get_ray(u, v);
+                    ray_color(r, &world) + acc
+                }) / (SAMPLES_PER_PIXEL as f64)
+            })
+            .collect_into_vec(&mut scratch);
+        scratch.drain(..).for_each(Vec3::write_color);
     }
 }
