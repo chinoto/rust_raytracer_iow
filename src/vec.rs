@@ -41,6 +41,13 @@ impl Vec3<f64> {
     pub fn random_unit_vector() -> Vec3<f64> {
         Vec3::random_in_unit_sphere().unit()
     }
+    pub fn near_zero(self) -> bool {
+        let threshold = 1e-8;
+        [self.0, self.1, self.2].iter().all(|d| d.abs() < threshold)
+    }
+    pub fn reflect(self, normal: Vec3<f64>) -> Vec3<f64> {
+        self - normal * 2.0 * self.dot(normal)
+    }
     pub fn write_color(self) {
         println!(
             "{} {} {}",

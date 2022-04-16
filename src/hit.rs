@@ -1,21 +1,29 @@
-use crate::{ray::Ray, vec::Vec3};
-use std::ops::Range;
+use crate::{material::Material, ray::Ray, vec::Vec3};
+use std::{ops::Range, sync::Arc};
 
 pub struct HitRecord {
     pub point: Vec3<f64>,
     pub normal: Vec3<f64>,
+    pub mat: Arc<dyn Material>,
     pub dist: f64,
     pub front_face: bool,
 }
 
 impl HitRecord {
-    pub fn new(point: Vec3<f64>, normal: Vec3<f64>, dist: f64, ray: Ray) -> Self {
+    pub fn new(
+        point: Vec3<f64>,
+        normal: Vec3<f64>,
+        mat: Arc<dyn Material>,
+        dist: f64,
+        ray: Ray,
+    ) -> Self {
         let front_face = ray.direction.dot(normal) < 0.;
         HitRecord {
             point,
             normal: if front_face { normal } else { -normal },
             dist,
             front_face,
+            mat,
         }
     }
 }
