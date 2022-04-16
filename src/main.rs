@@ -7,7 +7,7 @@ pub mod vec;
 
 use crate::{
     camera::Camera,
-    material::{Lambertian, Metal},
+    material::{Dielectric, Lambertian, Metal},
 };
 use hit::Hittable;
 use rand::random;
@@ -42,24 +42,23 @@ fn main() {
 
     // World
     let material_ground = Arc::new(Lambertian {
-        albedo: Vec3(0.8, 0.8, 0.0),
+        albedo: Vec3(0.8, 0.8, 0.),
     });
     let material_center = Arc::new(Lambertian {
-        albedo: Vec3(0.7, 0.3, 0.3),
+        albedo: Vec3(0.1, 0.2, 0.5),
     });
-    let material_left = Arc::new(Metal {
-        albedo: Vec3(0.8, 0.8, 0.8),
-        fuzz: 0.3,
-    });
+    let material_left = Arc::new(Dielectric { ir: 1.5 });
+    let material_left2 = material_left.clone();
     let material_right = Arc::new(Metal {
         albedo: Vec3(0.8, 0.6, 0.2),
-        fuzz: 1.0,
+        fuzz: 0.,
     });
 
     let world: Vec<Box<dyn Hittable>> = vec![
         Box::new(Sphere::new(Vec3(0.0, -100.5, -1.0), 100.0, material_ground)),
         Box::new(Sphere::new(Vec3(0.0, 0.0, -1.0), 0.5, material_center)),
         Box::new(Sphere::new(Vec3(-1.0, 0.0, -1.0), 0.5, material_left)),
+        Box::new(Sphere::new(Vec3(-1.0, 0.0, -1.0), -0.45, material_left2)),
         Box::new(Sphere::new(Vec3(1.0, 0.0, -1.0), 0.5, material_right)),
     ];
 
