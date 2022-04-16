@@ -63,7 +63,13 @@ fn main() {
     ];
 
     // Camera
-    let cam = Camera::new(2., ASPECT_RATIO, 1.);
+    let cam = Camera::new(
+        Vec3(-2., 2., 1.),
+        Vec3(0., 0., -1.),
+        Vec3(0., 1., 0.),
+        20.,
+        ASPECT_RATIO,
+    );
 
     // Render
     println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
