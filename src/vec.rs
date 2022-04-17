@@ -41,6 +41,14 @@ impl Vec3<f64> {
     pub fn random_unit_vector() -> Vec3<f64> {
         Vec3::random_in_unit_sphere().unit()
     }
+    pub fn random_unit_disk() -> Vec3<f64> {
+        loop {
+            let vec = Vec3(random(), random(), 0.) * 2. - Vec3(1., 1., 0.);
+            if vec.length_squared() < 1. {
+                return vec;
+            }
+        }
+    }
     pub fn near_zero(self) -> bool {
         let threshold = 1e-8;
         [self.0, self.1, self.2].iter().all(|d| d.abs() < threshold)

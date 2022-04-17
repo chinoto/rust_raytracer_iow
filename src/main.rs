@@ -63,12 +63,17 @@ fn main() {
     ];
 
     // Camera
+    let look_from = Vec3(3., 3., 2.);
+    let look_at = Vec3(0., 0., -1.);
+    let vup = Vec3(0., 1., 0.);
     let cam = Camera::new(
-        Vec3(-2., 2., 1.),
-        Vec3(0., 0., -1.),
-        Vec3(0., 1., 0.),
+        look_from,
+        look_at,
+        vup,
         20.,
         ASPECT_RATIO,
+        2.,
+        (look_from - look_at).length(),
     );
 
     // Render
